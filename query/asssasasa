@@ -1,0 +1,12 @@
+﻿﻿﻿CREATE OR REPLACE FUNCTION paises_copa(anocopa text)
+RETURNS TABLE(copa_ano integer, sigla text) 
+AS $$
+
+	SELECT e.copa_ano, p.sigla
+	FROM equipe e, pais p, copa c
+	WHERE e.copa_ano = anocopa
+	and e.pais_cod = p.cod
+	and c.ano = e.copa_ano
+$$ LANGUAGE sql;
+
+SELECT paises_copa('2010');

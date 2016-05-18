@@ -1,0 +1,43 @@
+﻿CREATE OR REPLACE FUNCTION fn_trans() RETURNS TRIGGER AS 
+$BODY$
+declare
+
+saldoanterior int;
+
+BEGIN 
+
+	saldoanterior = (SELECT c.saldo FROM conta c WHERE c.nro_conta = NEW.nro_conta);
+	NEW.saldo_anterior = saldoanterior;
+	
+	if(NEW.tipo_movimento  = 'SAQUE') THEN
+		if(saldoanterior >= NEW.monto) THEN
+			NEW.saldo_posterior = NEW.saldo_anterior - NEW.monto;
+			RETURN NEW;
+		else
+			return null;
+		
+		end if;
+		
+	else if(NEW.tipo_movimento = 'DEPOSITO')THEN
+		NEW.saldo_posterior = NEW.saldo_anterior + NEW.monto;
+		RETURN NEW;
+	
+	else if(NEW.tipo_movimento = 'TRANSFERÊNCIA') THEN
+		NEW.saldo_movimento = NEW.saldo_anterior - NEW.monto;
+		RETURN NEW;
+	
+	else 
+		RETURN NULL;
+	END IF;
+	END IF;
+	END IF;
+
+END;
+$BODY$
+LANGUAGE plpgsql;	
+
+CREATE TRIGGER tr_trans
+BEFORE INSERT ON movimento
+FOR EACH ROW EXECUTE PROCEDURE fn_trans();
+
+INSERT into movimento values(34,'CON-000011','DEPOSITO',null,2000,null,'2016-05-18');

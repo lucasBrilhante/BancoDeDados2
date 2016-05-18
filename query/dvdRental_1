@@ -1,0 +1,5 @@
+﻿SELECT c.name, count(*)
+FROM film_category fc,
+category c
+WHERE fc.category_id = c.category_id
+GROUP BY c.name

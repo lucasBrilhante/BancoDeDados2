@@ -1,0 +1,14 @@
+﻿CREATE OR REPLACE FUNCTION fn_verifica() RETURNS TRIGGER AS $$
+BEGIN 
+	if(NEW.datainic > NEW.datafim) THEN
+		RAISE NOTICE 'Data invalida';
+		RETURN NULL;
+	else
+		RETURN NEW;
+	END IF;
+END;
+$$ LANGUAGE plpgsql;	
+
+CREATE TRIGGER tr_verificar_data
+BEFORE INSERT OR UPDATE ON copa
+FOR EACH ROW EXECUTE PROCEDURE fn_verifica();

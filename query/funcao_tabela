@@ -1,0 +1,13 @@
+﻿CREATE OR REPLACE FUNCTION f_membro_equipe(p_pais text, ano integer)
+RETURNS TABLE(copa_ano integer, sigla text, nome text)
+AS $$
+	SELECT e.copa_ano, p.sigla, pe.nome
+	FROM equipe e, pais p, jogador j, pessoa pe
+	WHERE e.pais_cod = p.cod AND 
+	e.cod = j.equipe_cod AND 
+	pe.cod = j.pessoa_cod AND
+	p.sigla = p_pais AND
+	e.copa_ano = ano
+$$ LANGUAGE SQL
+
+SELECT f_membro_equipe('Brasil', '2006')

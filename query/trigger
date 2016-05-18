@@ -1,0 +1,33 @@
+﻿CREATE TABLE copa_audit(
+id_copa_audit serial NOT NULL,
+operacao varchar(1) not null,
+data_operacao timestamp,
+usuario text,
+ano integer NOT NULL,
+datainic date,
+datafim date,
+nomecidade character varying(255),
+PRIMARY KEY(id_copa_audit)
+)
+
+CREATE OR REPLACE FUNCTION fn_log_copa() RETURNS TRIGGER AS $$
+ BEGIN 
+
+ IF(TG_OP = 'DELETE')THEN
+	INSERT INTO copa_audit(operacao, data_operacao, usuario, ano, datainic, datafim, nomecidade) SELECT 'D',now(),current_user,OLD.*;
+	RETURN OLD;
+
+ELSEIF(TG_OP = 'UPDATE') THEN
+	INSERT INTO  copa_audit(operacao, data_operacao, usuario, ano, datainic, datafim, nomecidade) SELECT 'U',now(),current_user,NEW.*;
+	RETURN NEW;
+ELSEIF(TG_OP = 'INSERT') THEN
+	INSERT INTO  copa_audit(operacao, data_operacao, usuario, ano, datainic, datafim, nomecidade) SELECT 'I',now(),current_user,NEW.*;
+	RETURN NEW;
+END IF;
+RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;	
+
+CREATE TRIGGER tr_copa_audit
+AFTER INSERT OR UPDATE OR DELETE ON copa
+FOR EACH ROW EXECUTE PROCEDURE fn_log_copa();

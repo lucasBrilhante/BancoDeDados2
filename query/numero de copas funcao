@@ -1,0 +1,10 @@
+﻿CREATE FUNCTION numerodecopas() RETURNS integer AS $$
+DECLARE
+total int;
+BEGIN
+SELECT count(*) INTO total FROM copa;
+RETURN total;
+END;
+$$ LANGUAGE plpgsql;
+
+select numerodecopas();
